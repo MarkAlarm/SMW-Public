@@ -1,0 +1,224 @@
+Set !readme to 1 in the cluster-shooter.asm file
+
+Extra Byte/Bit Information
+
+Extra Bit
+	If clear, it shoots at a specified angle (extra bit = 2)
+	If set, it shoots while aimed at the player (extra bit = 3)
+	Note that this may not work with certain shooter types, such as aiming + sine wave
+
+Extra Byte 1 - Shooter Type
+	Shooter type, determines if the shooter does anything special
+	If you set this to anything other than $00, check Extra Bytes 11 and 12 for options
+	$00: standard shooter, does nothing special
+	$01: circular shooter, after every shot it rotates its shot angle by a given amount
+	$02: back/forth shooter, similar to circular but it goes back and forth over a range
+	$03: speed-up shooter, after every shot the speed increments up to a set max amount
+	$04: sine wave shooter, bullets will move up and down in a sinusoidal fashion
+	$05: cosine wave shooter, bullets will move up and down in a cosinusoidal fashion
+	$06: target shooter, forces shot toward a given tile, disregarding current position
+	$07: re-aiming bullets, bullets will aim towards the player after being shot
+	$08-$1F: reserved for potential future expansion, do not use
+	$20-$7F: open for your own usage, requires writing your own code though
+	$80-$FF: do not use
+
+Extra Byte 2 - Rate
+	Rate, how often the shooter... shoots. ANDed with the global timer ($14)
+	$07: shoot 1 bullet, every 8 frames
+	$33: shoot 4 bullets rapidly, every 64 frames
+
+Extra Byte 3 - Speed
+	Speed of bullet, not based on x/y direction (basically the hypotenuse)
+	Use values between $00 and $7F, where $7F is faster (really fast)
+	$80-$FF technically work, but note they'll shoot opposite to where you intend. I recommend not using this range
+	Due to the rounding that angled shots use, the fastest stable speed is ~ $70
+
+Extra Byte 4 - Angle
+	Angle of bullet (unused if extra bit is set, since the aim overrides angle)
+	$00: shoot going right
+	$40: shoot going down
+	$80: shoot going left
+	$C0: shoot going up
+	And of course any values in between would give diagonals
+
+Extra Byte 5 - Timer Offset
+	Offset from timer, basically how much to desync (wait) from the global timer
+	$00: don't wait at all, stay with the global timer
+	$01: desync by 1 frame, behind the global timer
+	$10: desync by 16 frames, behind the global timer
+	$F0: desync by 16 frames, ahead of global timer
+	$FF: desync by 1 frame, ahead of global timer
+
+Extra Byte 6 - Parameter
+	Shoot if parameter is met, such as a switch being active or not
+	$00: no parameter, shoot normally
+	$01: shoot only if on/off switch is ON
+	$02: shoot only if on/off switch is OFF
+	$03: shoot only if blue pswitch is ACTIVE
+	$04: shoot only if blue pswitch is INACTIVE
+	$05: shoot only if silver pswitch is ACTIVE
+	$06: shoot only if silver pswitch is INACTIVE
+	$07: shoot only if first RNG value ($148D) is POSITIVE
+	$08: shoot only if first RNG value ($148D) is NEGATIVE
+	$09: shoot only if second RNG value ($148E) is POSITIVE
+	$0A: shoot only if second RNG value ($148E) is NEGATIVE
+		I have no idea why you would want to use RNG but it's there if you want
+	$0B: shoot only if player is on shooter's RIGHT SIDE
+	$0C: shoot only if player is on shooter's LEFT SIDE
+	$0D: shoot only if player is BELOW SHOOTER
+	$0E: shoot only if player is ABOVE SHOOTER
+	$0F: shoot only if collected 0 DRAGON COINS
+	$10: shoot only if collected >0 DRAGON COINS
+	$11: shoot only if collected <5 DRAGON COINS
+	$12: shoot only if collected 5 DRAGON COINS
+	$13-$1F: reserved for potential future expansion, do not use
+	$20-$7F: open for your own usage, requires writing your own code though
+	$80-$FF: do not use
+
+Extra Byte 7 - Bullet Timer
+	Bullet timer, how many frames the bullet stays active before disappearing
+	$00: stays active indefinitely (or at least until it goes offscreen)
+	$01-$FF: number of frames before the bullet just disappears
+	This might be limited to $1F in order to save bits for future settings
+
+Extra Byte 8 - Bullet Limit
+	Bullet limit, how many bullets the shooter can shoot before deactivating
+	$00: no bullet limit, can shoot forever
+	$01-$FF: number of bullets the shooter can shoot
+	This might be limited to $1F in order to save bits for future settings
+
+Extra Byte 9 - Sprite Attach Number
+	Sprite to attach to, sprite number that shooter will latch to
+	This will just attach to the nearest sprite, whether its vanilla or custom
+	$00: do not attach to anything
+	$01-$FF: attach to the nearest sprite with that number
+
+Extra Byte 10 - Attach Offset
+	Y/X offset, shifts the shooter slightly from the sprite it attaches to
+	Format: yyyyxxxx, where the offset is counted by every 8 pixels (half tile)
+	The highest y bit marks its sign, shifting up instead of down
+	The highest x bit marks its sign, shifting left instead of right
+	$00: no y offset, no x offset
+	$01: no y offset, x shifted half a tile to the right
+	$10: y shifted half a tile downward, no x offset
+	$77: y shifted 4 tiles downward, x shifted 4 tiles to the right
+
+Extra Byte 11 - Type Settings 1
+	Various usage, depends on the shooter type set via Extra Byte 1
+	Initial values listed are what Extra Byte 1 is set to
+	Then each entry will have futher information on how to set this byte
+	
+	$00: standard shooter
+		Unused, leave this byte as $00
+	$01: circular shooter
+		This byte determines how much to rotate the angle by after each shot
+        	$00: don't rotate at all (which kind of defeats the point of this)
+		$01: rotate by the smallest possible amount, clockwise
+		$40: rotate by 90 degrees, clockwise
+		$80: rotate by 180 degrees (AKA flip angle)
+		$C0: rotate by 90 degrees, counterclockwise
+		$FF: rotate by the smallest possible amount, counterclockwise
+		
+	$02: back/forth shooter
+		This byte determines how much to rotate the angle by after each shot
+		Make sure that this value adds exactly onto the end angle
+		$00: don't rotate at all (which kind of defeats the point of this)
+		$01: rotate by the smallest possible amount, clockwise
+		$40: rotate by 90 degrees, clockwise
+		$80: rotate by 180 degrees (AKA flip angle)
+		$C0: rotate by 90 degrees, counterclockwise
+		$FF: rotate by the smallest possible amount, counterclockwise
+		
+	$03: speed-up shooter
+		This byte determines how much to increment the shot speed after every shot
+		Make sure that this value adds exactly onto the end speed
+		$00: don't increment at all (which kind of defeats the point of this)
+		$01: increment by the smallest possible amount
+		$10: increment by about 1 tile per frame, faster
+		$F0: decrement by about 1 tile per frame, slower
+		$FF: decrement by the smallest possible amount
+		
+	$04: sine wave shooter
+		This byte determines the highest speed offset the wave has on the other axis
+		For example, if the bullets are going left/right, this sets the highest up/down
+		You must have Extra Byte 4 be $00, $40, $80, or $C0 so it acts without problems
+		Seriously, please don't use values other than these otherwise it'll act weird
+		The sine wave will start the bullet with the speed specified here
+		
+	$05: cosine wave shooter
+		Mostly the same attributes as the sine wave shooter
+		The cosine wave will NOT start with the speed specified here, but go toward it
+		
+	$06: target shooter
+		This byte is the x position of the tile the shooter will aim at
+		You can find/set this pretty easily in Lunar Magic
+		
+	$07: re-aiming bullets
+		This byte determines how many times to re-aim and how many frames to wait
+		Format: ffffcccc, where f = frames to wait before re-aim, c = re-aim count
+		Basically, the first hex number is the wait, the second is the count
+		$00: don't re-aim (which kind of defeats the point of this)
+		$82: wait 8 frames, re-aim 2 times
+		$F3: wait 15 frames, re-aim 3 times
+
+Extra Byte 12 - Type Settings 2
+	Various usage, depends on the shooter type set via Extra Byte 1
+	Initial values listed are what Extra Byte 1 is set to
+    Then each entry will have futher information on how to set this byte
+	
+	$00: standard shooter
+		Unused, leave this byte as $00
+		
+	$01: circular shooter
+		Unused, leave this byte as $00
+		
+	$02: back/forth shooter
+		This byte is the stopping angle before it reverses direction
+		Extra Byte 4 is the starting angle, just like other shooter types
+		$00: shoot going right
+		$40: shoot going down
+		$80: shoot going left
+		$C0: shoot going up
+		And of course any values in between would give diagonals
+		
+	$03: speed-up shooter
+		This byte is the fastest (or slowest) speed that's reached, does not go back
+		Extra Byte 3 is the starting speed, just like other shooter types
+		Use values between $00 and $7F, where $7F is faster (really fast)
+		$80-$FF also work, but note they'll shoot opposite to where you intend
+		Due to the rounding that angled shots use, the fastest stable speed is ~ $70
+		
+	$04: sine wave shooter
+		This byte effectively acts as the acceleration toward the max speed specified
+		This value should be able to add itself to land exactly on the specified speed
+		For example, $10 in Extra Byte 11 and $02 here
+		
+	$05: cosine wave shooter
+		Mostly the same attributes as the sine wave shooter
+		
+	$06: target shooter
+		This byte is the y position of the tile the shooter will aim at
+		You can find/set this pretty easily in Lunar Magic
+		
+	$07: re-aiming bullets
+		Unused, leave this byte as $00
+		
+Example Shooter Configurations
+	These listings include the extra bit, the 12 extra bytes, and a brief description of how they behave
+	Extra bit being "clear" is represented by a '2', being "set" is represented by a '3'
+	
+	2 $00 $1F $20 $40 $00 $00 $00 $00 $00 $00 $00 $00
+		Every 32 frames, shoots down at 2 pixels / frame
+	2 $00 $07 $40 $C0 $00 $00 $00 $00 $00 $00 $00 $00
+		Every 8 frames, shoots up at 4 pixels / frame
+	3 $00 $33 $70 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00
+		Every 64 frames, 4 rapid shots aim towards the player at 7 pixels / frame
+	2 $00 $0F $20 $80 $00 $00 $00 $00 $0F $00 $00 $00
+		Every 16 frames, shoots left at 2 pixels / frame
+		Attempts attaching to sprite $0F (vanilla would be a galoomba)
+	2 $00 $03 $10 $00 $00 $01 $00 $00 $00 $00 $00 $00
+		Every 4 frames, shoots right at 1 pixel / frame
+		Will only shoot if the on/off switch is ON
+	3 $00 $03 $10 $00 $00 $03 $00 $00 $00 $00 $00 $00
+		Every 4 frames, aim towards the player at 1 pixel / frame
+		Will only shoot if the blue pswitch is ACTIVE

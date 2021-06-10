@@ -1,0 +1,110 @@
+{
+  "$1656": {
+    "Object Clipping": 0,
+    "Can be jumped on": false,
+    "Dies when jumped on": false,
+    "Hop in/kick shell": false,
+    "Disappears in cloud of smoke": false
+  },
+  "$1662": {
+    "Sprite Clipping": 0,
+    "Use shell as death frame": false,
+    "Fall straight down when killed": false
+  },
+  "$166E": {
+    "Use second graphics page": false,
+    "Palette": 0,
+    "Disable fireball killing": true,
+    "Disable cape killing": true,
+    "Disable water splash": true,
+    "Don't interact with Layer 2": true
+  },
+  "$167A": {
+    "Don't disable cliping when starkilled": false,
+    "Invincible to star/cape/fire/bounce blk.": true,
+    "Process when off screen": false,
+    "Don't change into shell when stunned": true,
+    "Can't be kicked like shell": true,
+    "Process interaction with Mario every frame": false,
+    "Gives power-up when eaten by yoshi": false,
+    "Don't use default interaction with Mario": true
+  },
+  "$1686": {
+    "Inedible": true,
+    "Stay in Yoshi's mouth": false,
+    "Weird ground behaviour": false,
+    "Don't interact with other sprites": true,
+    "Don't change direction if touched": true,
+    "Don't turn into coin when goal passed": true,
+    "Spawn a new sprite": false,
+    "Don't interact with objects": true
+  },
+  "$190F": {
+    "Make platform passable from below": false,
+    "Don't erase when goal passed": true,
+    "Can't be killed by sliding": true,
+    "Takes 5 fireballs to kill": false,
+    "Can be jumped on with upwards Y speed": false,
+    "Death frame two tiles high": false,
+    "Don't turn into a coin with silver POW": true,
+    "Don't get stuck in walls (carryable sprites)": false
+  },
+  "AsmFile": "cluster-shooter.asm",
+  "ActLike": 54,
+  "Type": 1,
+  "Extra Property Byte 1": 0,
+  "Extra Property Byte 2": 0,
+  "Additional Byte Count (extra bit clear)": 12,
+  "Additional Byte Count (extra bit set)": 12,
+  "Map16": "whzSHMMc0xw=",
+  "Displays": [
+    {
+      "Description": "A cluster bullet sprite shooter with lots of customization options. A summary of each extra byte is included here, but check the documentation for more detailed descriptions and examples.\\nExtra Bit: Aim at player if set.\\nExtra Byte 1: Shooter type.\\nExtra Byte 2: Rate at which bullets are shot.\\nExtra Byte 3: Speed at which bullets are shot.\\nExtra Byte 4: Angle of shot (irrelevant if aiming).\\nExtra Byte 5: Offset from global timer.\\nExtra Byte 6: Parameter, ASM file has details.\\nExtra Byte 7: Time for bullet to stay on screen.\\nExtra Byte 8: How many bullets can be shot.\\nExtra Byte 9: Sprite number to attach to.\\nExtra Byte 10: Y/X offset from host sprite.\\nExtra Byte 11: Various usage.\\nExtra Byte 12: Various usage.",
+      "ExtraBit": false,
+      "Tiles": [
+        {
+          "X offset": 0,
+          "Y offset": 0,
+          "map16 tile": 768
+        }
+      ],
+      "X": 0,
+      "Y": 0,
+      "DisplayText": "",
+      "UseText": false
+    },
+    {
+      "Description": "A cluster bullet sprite shooter with lots of customization options. A summary of each extra byte is included here, but check the documentation for more detailed descriptions and examples.\\nExtra Bit: Aim at player if set.\\nExtra Byte 1: Shooter type.\\nExtra Byte 2: Rate at which bullets are shot.\\nExtra Byte 3: Speed at which bullets are shot.\\nExtra Byte 4: Angle of shot (irrelevant if aiming).\\nExtra Byte 5: Offset from global timer.\\nExtra Byte 6: Parameter, ASM file has details.\\nExtra Byte 7: Time for bullet to stay on screen.\\nExtra Byte 8: How many bullets can be shot.\\nExtra Byte 9: Sprite number to attach to.\\nExtra Byte 10: Y/X offset from host sprite.\\nExtra Byte 11: Various usage.\\nExtra Byte 12: Various usage.",
+      "ExtraBit": true,
+      "Tiles": [
+        {
+          "X offset": 0,
+          "Y offset": 0,
+          "map16 tile": 768
+        }
+      ],
+      "X": 0,
+      "Y": 0,
+      "DisplayText": "",
+      "UseText": false
+    }
+  ],
+  "Collection": [
+    {
+      "Name": "Cluster Bullet Shooter",
+      "ExtraBit": false,
+      "Extra Property Byte 1": 0,
+      "Extra Property Byte 2": 0,
+      "Extra Property Byte 3": 0,
+      "Extra Property Byte 4": 0,
+      "Extra Property Byte 5": 0,
+      "Extra Property Byte 6": 0,
+      "Extra Property Byte 7": 0,
+      "Extra Property Byte 8": 0,
+      "Extra Property Byte 9": 0,
+      "Extra Property Byte 10": 0,
+      "Extra Property Byte 11": 0,
+      "Extra Property Byte 12": 0
+    }
+  ]
+}
