@@ -61,7 +61,7 @@
 
 if !dashBreakBlocks
 	dashBlockXOffsets:						; \ offset to interact with blocks in dash state
-		dw $0012,$FFEE						; / right, left
+		dw $0012,$FFFE						; / right, left
 endif
 
 if !blimpEnableSmokeTrail
@@ -315,7 +315,12 @@ Dash:
 		LDA !sprite_y_high,x				; |
 		STA $99								; /
 		
-		STZ $1933|!addr						; layer 1 only
+		LDA !sprite_blocked_status,x		; \ take blocked status
+		AND #$20							; | get layer 2 bit
+		ASL #3								; |
+		ROL									; |
+		AND #$01							; |
+		STA $1933|!addr						; / use that to configure the layer we interact with
 		
 		REP #$20
 		JSL GetMap16						; \ get map16 tile
