@@ -1,5 +1,5 @@
 ;############################################;
-;# Cluster Bullet v1.1                      #;
+;# Cluster Bullet v1.11                     #;
 ;# By MarkAlarm                             #;
 ;# Credit if used, do not claim as your own #;
 ;############################################;
@@ -8,19 +8,12 @@
 ;# Defines and Stuff #;
 ;#####################;
 
-	!cluster_tile            = $C2
-	!cluster_props           = %00111110
+	!cluster_tile = $C2				; 16x16 tile to use
+	!palette = $08					; respective palette number. please keep this between $08 and $0F
+	!page = $01						; $00 for SP1/SP2, $01 for SP3/SP4
 	
-	; some default, helpful values
-	; palette 8: %00110000
-	; palette 9: %00110010
-	; palette A: %00110100
-	; palette B: %00110110
-	; palette C: %00111000
-	; palette D: %00111010
-	; palette E: %00111100
-	; palette F: %00111110
-	; if you want to use SP3 or SP4, change the last 0 to a 1
+	; do not edit anything past this point, unless you know what you're doing
+	!cluster_props = $30|(!palette-$08)<<1|!page
 	
 	!cluster_type         = $0F4A|!addr
 	!cluster_setting_1    = $0F72|!addr

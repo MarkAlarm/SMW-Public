@@ -67,11 +67,15 @@ Extra Byte 6 - Parameter
 	$0C: shoot only if player is on shooter's LEFT SIDE
 	$0D: shoot only if player is BELOW SHOOTER
 	$0E: shoot only if player is ABOVE SHOOTER
-	$0F: shoot only if collected 0 DRAGON COINS
-	$10: shoot only if collected >0 DRAGON COINS
-	$11: shoot only if collected <5 DRAGON COINS
-	$12: shoot only if collected 5 DRAGON COINS
-	$13-$1F: reserved for potential future expansion, do not use
+	$0F: shoot only if player is facing RIGHT
+	$10: shoot only if player is facing LEFT
+	$11: shoot only if dragon coins are NOT COLLECTED
+	$12: shoot only if dragon coins are COLLECTED
+	$13: shoot only if invisible 1UP is NOT COLLECTED
+	$14: shoot only if invisible 1UP is COLLECTED
+	$15: shoot only if moon is NOT COLLECTED
+	$16: shoot only if moon is COLLECTED
+	$17-$1F: reserved for potential future expansion, do not use
 	$20-$7F: open for your own usage, requires writing your own code though
 	$80-$FF: do not use
 

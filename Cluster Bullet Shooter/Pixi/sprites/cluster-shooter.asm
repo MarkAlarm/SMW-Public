@@ -1,5 +1,5 @@
 ;############################################;
-;# Cluster Bullet Shooter v1.1              #;
+;# Cluster Bullet Shooter v1.11             #;
 ;# By MarkAlarm                             #;
 ;# Credit if used, do not claim as your own #;
 ;############################################;
@@ -59,40 +59,43 @@
 ;######################;
 
 parameterPointers:
-	dw NoParameter				; $00
+	dw NoParameter					; $00
 	
-	dw OnOff_isON				; $01
-	dw OnOff_isOFF				; $02
-	dw BlueP_isACTIVE			; $03
-	dw BlueP_isNOTACTIVE		; $04
-	dw SilverP_isACTIVE			; $05
-	dw SilverP_isNOTACTIVE		; $06
-	dw RNG1_isPOSITIVE			; $07
-	dw RNG1_isNEGATIVE			; $08
-	dw RNG2_isPOSITIVE			; $09
-	dw RNG2_isNEGATIVE			; $0A
-	dw Player_onRIGHT			; $0B
-	dw Player_onLEFT			; $0C
-	dw Player_isBELOW			; $0D
-	dw Player_isABOVE			; $0E
-	dw DragonCoins_is0			; $0F
-	dw DragonCoins_isMORE0		; $10
-	dw DragonCoins_isLESS5		; $11
-	dw DragonCoins_is5			; $12
+	dw OnOff_isON					; $01
+	dw OnOff_isOFF					; $02
+	dw BlueP_isACTIVE				; $03
+	dw BlueP_isNOTACTIVE			; $04
+	dw SilverP_isACTIVE				; $05
+	dw SilverP_isNOTACTIVE			; $06
 	
-	dw ReservedParameter_13		; $13
-	dw ReservedParameter_14		; $14
-	dw ReservedParameter_15		; $15
-	dw ReservedParameter_16		; $16
-	dw ReservedParameter_17		; $17
-	dw ReservedParameter_18		; $18
-	dw ReservedParameter_19		; $19
-	dw ReservedParameter_1A		; $1A
-	dw ReservedParameter_1B		; $1B
-	dw ReservedParameter_1C		; $1C
-	dw ReservedParameter_1D		; $1D
-	dw ReservedParameter_1E		; $1E
-	dw ReservedParameter_1F		; $1F
+	dw RNG1_isPOSITIVE				; $07
+	dw RNG1_isNEGATIVE				; $08
+	dw RNG2_isPOSITIVE				; $09
+	dw RNG2_isNEGATIVE				; $0A
+	
+	dw Player_onRIGHT				; $0B
+	dw Player_onLEFT				; $0C
+	dw Player_isBELOW				; $0D
+	dw Player_isABOVE				; $0E
+	dw Player_facingRIGHT			; $0F
+	dw Player_facingLEFT			; $10
+	
+	dw DragonCoins_areNOTCOLLECTED	; $11
+	dw DragonCoins_areCOLLECTED		; $12
+	dw Invis1Up_isNOTCOLLECTED		; $13
+	dw Invis1Up_isCOLLECTED			; $14
+	dw Moon_isNOTCOLLECTED			; $15
+	dw Moon_isCOLLECTED				; $16
+
+	dw ReservedParameter_17			; $17
+	dw ReservedParameter_18			; $18
+	dw ReservedParameter_19			; $19
+	dw ReservedParameter_1A			; $1A
+	dw ReservedParameter_1B			; $1B
+	dw ReservedParameter_1C			; $1C
+	dw ReservedParameter_1D			; $1D
+	dw ReservedParameter_1E			; $1E
+	dw ReservedParameter_1F			; $1F
 	
 	; if you wanted to write your own custom parameter checks, you would write the pointer here.
 	; then where all these pointers are, you'd add the code under everything else.
@@ -289,20 +292,16 @@ GenerateBullet:
 
 	LDA !bulletTimerTable,x			; \ store the bullet expiration timer into the cluster sprite table
 	STA !cluster_expire_timer,y		; /
-	
-	PHY
-	LDY #$00
+
+	STZ $05							; \ clear high angle byte
+	LDA !bulletAngleTable,x			; | get the actual angle we want
+	ASL								; | shift due to how CircleX and CircleY work
+	STA $04							; | store angle into scratch
+	BCC +							; |
+	INC $05							; | increment high byte if we're in the $80-$FF range
+	+								; /
 	
 	LDA !bulletSpeedTable,x			; \ store bullet speed into scratch
-	STA $04							; /
-	
-	BPL +							; \ if it's negative, make the 16 bit speed also negative
-	DEY								; |
-	+								; |
-	STY $05							; /
-	PLY
-	
-	LDA !bulletAngleTable,x			; \ store bullet angle into scratch
 	STA $06							; /
 	
 	LDA !shooterTypeTable,x					; \ load shooter type
@@ -317,15 +316,14 @@ GenerateBullet:
 	BNE Aim							; / aim at the player if extra bit is set
 	
 	SetAngle:
-		%MathGetCoordSpd()			; $06 is already set to the necessary angle, so nothing else is needed here
-		
-		LDA $00						; \ now that math is done, store x and y speeds properly
-		ASL #4						; |
-		STA !cluster_speed_x,y		; |
-		LDA $02						; |
-		ASL #4						; |
-		STA !cluster_speed_y,y		; /
-		
+		%CircleX()
+		%CircleY()
+
+		LDA $07
+		STA !cluster_speed_x,y
+		LDA $09
+		STA !cluster_speed_y,y
+
 		++
 		RTS
 	
@@ -353,7 +351,7 @@ GenerateBullet:
 		STA $02						; |
 		SEP #$20					; /
 		
-		LDA $04						; load speed
+		LDA $06						; load speed
 		
 		%Aiming()					; aim at the player
 		LDA $00						; \ store x and y speeds
@@ -578,10 +576,9 @@ SineWaveShooter:
 	AND #$01
 	BNE .vertical
 	
-	%MathGetCoordSpd()				; $06 is already set to the necessary angle, so nothing else is needed here
+	%CircleX()
 	
-	LDA $00							; \ set x speed
-	ASL #4							; |
+	LDA $07							; \ set x speed
 	STA !cluster_speed_x,y			; /
 	
 	LDA !setting1Table,x			; \ set y speed
@@ -590,10 +587,9 @@ SineWaveShooter:
 	BRA +
 		
 	.vertical
-	%MathGetCoordSpd()				; $06 is already set to the necessary angle, so nothing else is needed here
+	%CircleY()
 	
-	LDA $02							; \ set y speed
-	ASL #4							; |
+	LDA $09							; \ set y speed
 	STA !cluster_speed_y,y			; /
 	
 	LDA !setting1Table,x			; \ set x speed
@@ -620,7 +616,40 @@ CosineWaveShooter:
 	LSR #6							; | 0 = right, 1 = down, 2 = left, 3 = up
 	STA !cluster_misc_table,y		; /
 	
-	CLC
+	AND #$01
+	BNE .vertical
+	
+	%CircleX()
+	
+	LDA $07							; \ set x speed
+	STA !cluster_speed_x,y			; /
+	
+	LDA #$00						; \ set y speed
+	STA !cluster_speed_y,y			; /
+	
+	BRA +
+		
+	.vertical
+	%CircleY()
+	
+	LDA $09							; \ set y speed
+	STA !cluster_speed_y,y			; /
+	
+	LDA #$00						; \ set x speed
+	STA !cluster_speed_x,y			; /
+	
+	+
+	LDA !cluster_setting_1,y		; \ inverse speed to approach
+	EOR #$FF						; |
+	INC								; |
+	STA !cluster_setting_1,y		; /
+	
+	LDA !cluster_setting_2,y		; \ inverse acceleration
+	EOR #$FF						; |
+	INC								; |
+	STA !cluster_setting_2,y		; /
+	
+	SEC
 	RTS
 	
 TargetShooter:
@@ -660,7 +689,7 @@ TargetShooter:
 	SBC $0B						; |
 	STA $03						; /	
 	
-	LDA $04						; load speed
+	LDA $06						; load speed
 	
 	%Aiming()					; aim at the player
 	LDA $00						; \ store x and y speeds
@@ -844,47 +873,130 @@ Player_isABOVE:
 	+
 	RTS
 	
-DragonCoins_is0:
+Player_facingRIGHT:
 	LDX $15E9|!addr
-	LDA $1420|!addr
-	CLC
-	BNE +
-	SEC
-	+
-	RTS
-	
-DragonCoins_isMORE0:
-	LDX $15E9|!addr
-	LDA $1420|!addr
+	LDA $76
 	BEQ +
 	SEC
 	+
 	RTS
 	
-DragonCoins_isLESS5:
+Player_facingLEFT:
 	LDX $15E9|!addr
-	LDA $1420|!addr
-	CMP #$05
-	CLC
-	BEQ +
-	SEC
-	+
-	RTS
-	
-DragonCoins_is5:
-	LDX $15E9|!addr
-	LDA $1420|!addr
-	CMP #$05
-	CLC
+	LDA $76
 	BNE +
 	SEC
 	+
 	RTS
 
-ReservedParameter_13:
-ReservedParameter_14:
-ReservedParameter_15:
-ReservedParameter_16:
+DragonCoins_areNOTCOLLECTED:
+	LDA $13BF|!addr
+	LSR #3
+	TAX
+	LDA $1F2F|!addr,x
+	PHA
+	LDA $13BF|!addr
+	AND #$07
+	TAX
+	PLA
+	AND $05B35B,x
+	CLC
+	BNE +
+	SEC
+	+
+	LDX $15E9|!addr
+	RTS
+	
+DragonCoins_areCOLLECTED:
+	LDA $13BF|!addr
+	LSR #3
+	TAX
+	LDA $1F2F|!addr,x
+	PHA
+	LDA $13BF|!addr
+	AND #$07
+	TAX
+	PLA
+	AND $05B35B,x
+	CLC
+	BEQ +
+	SEC
+	+
+	LDX $15E9|!addr
+	RTS
+	
+Invis1Up_isNOTCOLLECTED:
+	LDA $13BF|!addr
+	LSR #3
+	TAX
+	LDA $1F3C|!addr,x
+	PHA
+	LDA $13BF|!addr
+	AND #$07
+	TAX
+	PLA
+	AND $05B35B,x
+	CLC
+	BNE +
+	SEC
+	+
+	LDX $15E9|!addr
+	RTS
+	
+Invis1Up_isCOLLECTED:
+	LDA $13BF|!addr
+	LSR #3
+	TAX
+	LDA $1F3C|!addr,x
+	PHA
+	LDA $13BF|!addr
+	AND #$07
+	TAX
+	PLA
+	AND $05B35B,x
+	CLC
+	BEQ +
+	SEC
+	+
+	LDX $15E9|!addr
+	RTS
+	
+Moon_isNOTCOLLECTED:
+	LDA $13BF|!addr
+	LSR #3
+	TAX
+	LDA $1FEE|!addr,x
+	PHA
+	LDA $13BF|!addr
+	AND #$07
+	TAX
+	PLA
+	AND $05B35B,x
+	CLC
+	BNE +
+	SEC
+	+
+	LDX $15E9|!addr
+	RTS
+	
+Moon_isCOLLECTED:
+	LDA $13BF|!addr
+	LSR #3
+	TAX
+	LDA $1FEE|!addr,x
+	PHA
+	LDA $13BF|!addr
+	AND #$07
+	TAX
+	PLA
+	AND $05B35B,x
+	CLC
+	BEQ +
+	SEC
+	+
+	LDX $15E9|!addr
+	RTS
+
 ReservedParameter_17:
 ReservedParameter_18:
 ReservedParameter_19:

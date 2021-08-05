@@ -20,17 +20,16 @@ ________________________________________________________________________________
  Sprite shooter created by MarkAlarm
  Cluster bullet created by MarkAlarm
  Graphics used from the JUMP resource pack
- MathGetCoordSpd routine created by worldpeace, SA-1 hybridized by MarkAlarm
 
  Special thanks goes out to the following people:
  worldpeace:
   For creating one of my favorite levels of all time (Cool or Cruel: Tubular)
   For inspiring me to create this in the first place
   For being a tremendous help when I first started trying to make cluster sprites, in a sense being a mentor
-  And for providing me the MathGetCoordSpd routine, for which this sprite would not be the same otherwise
+  And for providing me the MathGetCoordSpd routine (for earlier versions of this sprite)
 
  dtothefourth:
-  For being one of my primary ASM mentors, especially over the past several months to a year
+  For being one of my primary ASM mentors, especially over the past year
   For helping me figure out the SA-1 conversion for the math routine
   And just being there for me any time I have questions for why stuff breaks
 
@@ -73,9 +72,6 @@ ________________________________________________________________________________
   The cluster sprite itself
   This is what actually gets shot out, a 16x16 ball of plasma (assuming you use the exanimation graphic provided)
   It will hurt the player upon impact, but there is future room for expansion to have it do other things
-
- MathGetCoordSpd.asm
-  A required routine used to calculate X and Y speeds based on a given input speed and angle
 ____________________________________________________________________________________________________
 
  3. Information
@@ -113,6 +109,22 @@ ________________________________________________________________________________
 
  5. Update Log
 ____________________________________________________________________________________________________
+
+ August 5th, 2021: v1.11
+  Actually implemented the cosine shooter since I forgot to last time
+  Added the following parameter options:
+   Moon collected status
+   Invisible 1-UP collected status
+   Player facing direction
+  Changed the dragon coin parameters to be based on the collected flag, rather than count
+  Changed the included level to showcase some more features. Some of these include:
+   Circular shooters in the form of a spiral (uses 4 shooters to make this effect work)
+   Sine/cosine shooters
+   Speed-up shooter
+   Shooters that activate upon collecting a moon
+  Removed MathGetCoordSpd.asm in favor of using Pixi's built in CircleX and CircleY routines
+   Because of this change, precise angle shots now work as intended
+   Also fixes the circular and back/forth shooters due to their inherent nature with small angle changes
 
  June 10th, 2021: v1.1
   Added shooter types with customizable parameters, including:
@@ -152,7 +164,6 @@ ________________________________________________________________________________
  Include an 8x8 (or just a customizeable size) version of the bullet sprite
  Give bullets object interaction so they can bounce off walls
  Add an option to spin jump off bullets
- Rewrite the math routine to allow for more precise angle shots
 ____________________________________________________________________________________________________
 
  7. Known Bugs
@@ -161,7 +172,6 @@ ________________________________________________________________________________
  Placing more than 16 shooters on SA-1 causes them to load invalid values
  Attaching shooters to some sprites that change either state or number can be wonky
   For example, attaching to baby yoshi as it grows into adult yoshi
- Back and forth shooters don't shoot at super precise angles, due to how the math routine is made
 ____________________________________________________________________________________________________
 
  And if you read this whole thing, thanks! I hope you found it useful and informative :D
